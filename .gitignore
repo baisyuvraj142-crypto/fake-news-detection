@@ -1,0 +1,32 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Testing and caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local configuration & IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.log
+.DS_Store
+Thumbs.db
+
+# Large dataset raw files (optional to keep git repository lightweight)
+# data/*.csv
+
+# Local NLTK corpora data (downloaded automatically at runtime)
+nltk_data/
+

@@ -1,0 +1,98 @@
+/* Custom styling for Fake News Detection System */
+
+:root {
+    --primary-color: #0f172a;
+    --accent-color: #2563eb;
+    --real-color: #16a34a;
+    --fake-color: #dc2626;
+    --bg-light: #f8fafc;
+}
+
+body {
+    background-color: var(--bg-light);
+    color: #1e293b;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.navbar {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+}
+
+.result-card {
+    border-top: 5px solid;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.result-real {
+    border-top-color: var(--real-color);
+}
+
+.result-fake {
+    border-top-color: var(--fake-color);
+}
+
+.badge-real {
+    background-color: #dcfce7;
+    color: var(--real-color);
+    font-size: 1.25rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    font-weight: 700;
+}
+
+.badge-fake {
+    background-color: #fee2e2;
+    color: var(--fake-color);
+    font-size: 1.25rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    font-weight: 700;
+}
+
+.badge-keyword {
+    background-color: #e2e8f0;
+    color: #334155;
+    font-size: 0.95rem;
+    padding: 0.4rem 0.8rem;
+    margin-right: 0.4rem;
+    margin-bottom: 0.4rem;
+    display: inline-block;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.footer {
+    margin-top: auto;
+    background-color: #0f172a;
+    color: #94a3b8;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

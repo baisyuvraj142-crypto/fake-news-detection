@@ -1,0 +1,28 @@
+{
+    "best_model": "Logistic Regression",
+    "total_samples": 700,
+    "train_samples": 560,
+    "test_samples": 140,
+    "real_count": 350,
+    "fake_count": 350,
+    "models": {
+        "Logistic Regression": {
+            "accuracy": 100.0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1_score": 100.0
+        },
+        "Multinomial Naive Bayes": {
+            "accuracy": 100.0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1_score": 100.0
+        },
+        "Passive Aggressive Classifier": {
+            "accuracy": 100.0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1_score": 100.0
+        }
+    }
+}

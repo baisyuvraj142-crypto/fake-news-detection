@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}About & Viva Guide - VeritasNews{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Heading -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">About the Project & System Architecture</h2>
+            <p class="text-muted lead">
+                Comprehensive overview of NLP preprocessing, TF-IDF feature extraction, and ML classification.
+            </p>
+        </div>
+
+        <!-- How It Works (Simple explanation) -->
+        <div class="card p-4 mb-4">
+            <h4 class="fw-bold text-primary mb-3">
+                <i class="bi bi-gear-wide-connected me-2"></i>How the System Works (In Simple Terms)
+            </h4>
+            <p>
+                When a user submits a news headline or article, the system converts human-written English text into numerical patterns that machine learning models can understand. It follows a multi-stage pipeline:
+            </p>
+
+            <div class="row g-3 mt-1">
+                <div class="col-md-3">
+                    <div class="border rounded p-3 h-100 bg-light">
+                        <div class="fw-bold text-dark mb-1">1. Cleaning & Filtering</div>
+                        <small class="text-muted">
+                            Converts text to lowercase, removes punctuation, symbols, numbers, and hyperlinks to eliminate noise.
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 h-100 bg-light">
+                        <div class="fw-bold text-dark mb-1">2. Stopwords & Lemmatization</div>
+                        <small class="text-muted">
+                            Removes frequent non-informative words (<em>"the", "is", "at"</em>) and reduces words to their grammatical root form (<em>"running" &rarr; "run"</em>).
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 h-100 bg-light">
+                        <div class="fw-bold text-dark mb-1">3. TF-IDF Vectorization</div>
+                        <small class="text-muted">
+                            Computes unigram & bigram weights. Rare words carry higher distinctiveness while common terms are scaled down.
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 h-100 bg-light">
+                        <div class="fw-bold text-dark mb-1">4. Classification & Top Words</div>
+                        <small class="text-muted">
+                            The trained model outputs REAL or FAKE with a probability score and highlights the top 5 words influencing the decision.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data-Leakage Fix Explanation (Crucial Viva Point) -->
+        <div class="card p-4 mb-4 border-start border-4 border-info">
+            <h5 class="fw-bold text-dark mb-2">
+                <i class="bi bi-shield-lock-fill text-info me-2"></i>Data-Leakage Prevention (FR-5)
+            </h5>
+            <p class="text-secondary mb-0">
+                In many public news datasets (e.g. ISOT from Kaggle), real articles often contain giveaway prefixes like <em>"WASHINGTON (Reuters) -"</em>, which allows a naive model to score ~99% purely by memorizing the word <em>"Reuters"</em> rather than learning genuine linguistic patterns of fake news. Our preprocessing explicitly strips these publisher signatures, and completely ignores <em>subject</em> and <em>date</em> metadata columns to ensure genuine linguistic learning.
+            </p>
+        </div>
+
+        <!-- Model Comparison & Explainability -->
+        <div class="card p-4 mb-4">
+            <h4 class="fw-bold text-dark mb-3">
+                <i class="bi bi-cpu me-2 text-primary"></i>Evaluated Algorithms
+            </h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item px-0">
+                    <strong>1. Logistic Regression:</strong>
+                    A linear model that applies the sigmoid function to map feature weights to a probability between 0 and 1. Coefficients provide full transparency into which specific words pushed the prediction towards REAL or FAKE.
+                </li>
+                <li class="list-group-item px-0">
+                    <strong>2. Multinomial Naive Bayes:</strong>
+                    A probabilistic classifier based on Bayes' Theorem with independence assumptions between features. Extremely fast and well-suited for high-dimensional word counts.
+                </li>
+                <li class="list-group-item px-0">
+                    <strong>3. Passive Aggressive Classifier:</strong>
+                    An online margin-based algorithm that updates its weights aggressively upon misclassification and remains passive when a correct prediction is made with sufficient margin.
+                </li>
+            </ul>
+        </div>
+
+        <!-- Limitations (Section 10 of SRS) -->
+        <div class="card p-4 mb-4">
+            <h4 class="fw-bold text-danger mb-3">
+                <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>System Limitations (Section 10)
+            </h4>
+            <ul class="mb-0 text-secondary">
+                <li class="mb-2">
+                    <strong>Style vs. Facts:</strong> The model learns writing style, tone, and vocabulary patterns. It does <em>not</em> query external live databases or fact-check real-time political claims.
+                </li>
+                <li class="mb-2">
+                    <strong>Domain and Temporal Scope:</strong> Trained predominantly on modern English political and general news. Historical news, niche scientific papers, or non-English articles may have lower accuracy.
+                </li>
+                <li class="mb-2">
+                    <strong>Satire and Irony:</strong> Satirical articles (e.g. from <em>The Onion</em>) or strong editorial opinion pieces may occasionally be misclassified due to stylistic nuances.
+                </li>
+                <li>
+                    <strong>Input Length:</strong> Requires at least 20 words (FR-22) because very short headlines do not provide sufficient TF-IDF feature density.
+                </li>
+            </ul>
+        </div>
+
+        <!-- Viva Cheat-Sheet -->
+        <div class="card p-4 mb-4 bg-light border">
+            <h4 class="fw-bold text-dark mb-3">
+                <i class="bi bi-mortarboard text-success me-2"></i>Viva Quick-Reference Guide
+            </h4>
+            <div class="table-responsive">
+                <table class="table table-bordered bg-white">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>File / Component</th>
+                            <th>Role in Project</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>src/preprocess.py</code></td>
+                            <td>Shared text cleaning, regex cleaning, lowercase, stopwords removal, and NLTK WordNet lemmatization.</td>
+                        </tr>
+                        <tr>
+                            <td><code>src/train.py</code></td>
+                            <td>Loads dataset, prevents data leakage, fits TF-IDF, trains 3 models, selects the best F1 model, and saves artifacts.</td>
+                        </tr>
+                        <tr>
+                            <td><code>src/predict.py</code></td>
+                            <td>Loads model once at startup, validates minimum 20 words, computes confidence and top 5 explainability words.</td>
+                        </tr>
+                        <tr>
+                            <td><code>app.py</code></td>
+                            <td>Flask backend serving Web UI routes and developer REST API (<code>/api/predict</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><code>tests/test_basic.py</code></td>
+                            <td>Automated test suite checking cleaning, validation, REST API, and acceptance criteria.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

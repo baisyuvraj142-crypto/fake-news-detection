@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Fake News Detector{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Header Hero -->
+        <div class="text-center mb-4">
+            <h1 class="display-6 fw-bold text-dark">AI-Powered News Authenticity Detector</h1>
+            <p class="text-muted lead">
+                Classify news headlines and full articles into 
+                <span class="badge bg-success-subtle text-success fw-bold">REAL</span> or 
+                <span class="badge bg-danger-subtle text-danger fw-bold">FAKE</span> 
+                with explainable NLP word features.
+            </p>
+        </div>
+
+        <!-- Alert Error Message -->
+        {% if error_message %}
+        <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
+            <div>
+                <strong>Notice:</strong> {{ error_message }}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+
+        <!-- Input Form Card -->
+        <div class="card p-4 mb-4">
+            <form method="POST" action="{{ url_for('index') }}" id="newsForm">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label for="news_text" class="form-label fw-bold mb-0">
+                        <i class="bi bi-newspaper me-1"></i> Paste News Article or Headline:
+                    </label>
+                    <span id="wordCountBadge" class="badge bg-secondary">0 words (min 20 required)</span>
+                </div>
+
+                <textarea 
+                    class="form-control mb-3" 
+                    id="news_text" 
+                    name="news_text" 
+                    rows="6" 
+                    placeholder="Paste the news story here (at least 20 words required for classification)..." 
+                    required>{{ input_text }}</textarea>
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadSample('real')">
+                            <i class="bi bi-file-earmark-check me-1"></i> Sample Real News
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadSample('fake')">
+                            <i class="bi bi-file-earmark-x me-1"></i> Sample Fake News
+                        </button>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <!-- FR-18: Clear button -->
+                        <button type="button" class="btn btn-outline-danger px-3" onclick="clearForm()">
+                            <i class="bi bi-trash3 me-1"></i> Clear
+                        </button>
+                        <!-- FR-18: Check News button -->
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold" id="submitBtn">
+                            <i class="bi bi-search me-1"></i> Check News
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- FR-19 & FR-20 & FR-21: Prediction Result Card -->
+        {% if prediction %}
+        <div class="card result-card {% if prediction.label == 'REAL' %}result-real{% else %}result-fake{% endif %} p-4 mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-7 border-end-md">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="me-3 fs-5 text-muted">Classification Result:</span>
+                        {% if prediction.label == 'REAL' %}
+                        <span class="badge-real d-inline-flex align-items-center">
+                            <i class="bi bi-check-circle-fill me-2"></i> REAL NEWS
+                        </span>
+                        {% else %}
+                        <span class="badge-fake d-inline-flex align-items-center">
+                            <i class="bi bi-x-circle-fill me-2"></i> FAKE NEWS
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold">Model Confidence:</span>
+                            <span class="fw-bold {% if prediction.label == 'REAL' %}text-success{% else %}text-danger{% endif %} fs-5">
+                                {{ prediction.confidence }}%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 14px;">
+                            <div 
+                                class="progress-bar progress-bar-striped progress-bar-animated {% if prediction.label == 'REAL' %}bg-success{% else %}bg-danger{% endif %}" 
+                                role="progressbar" 
+                                style="width: {{ prediction.confidence }}%;" 
+                                aria-valuenow="{{ prediction.confidence }}" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FR-21: Top 5 Explainability Words -->
+                <div class="col-md-5 pt-3 pt-md-0 ps-md-4">
+                    <h6 class="fw-bold text-dark mb-2">
+                        <i class="bi bi-lightbulb text-warning me-1"></i> Key Indicator Keywords
+                    </h6>
+                    <p class="small text-muted mb-2">
+                        Top words pushing the decision towards <strong>{{ prediction.label }}</strong>:
+                    </p>
+                    <div>
+                        {% if prediction.top_words %}
+                            {% for word in prediction.top_words %}
+                            <span class="badge-keyword">
+                                <i class="bi bi-tag-fill me-1 text-primary"></i>{{ word }}
+                            </span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-muted small">No specific high-weighted keywords identified in vocabulary.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick API Usage Accordion -->
+        <div class="card p-3">
+            <h6 class="fw-bold mb-1"><i class="bi bi-code-slash text-primary me-2"></i>Developer REST API (FR-25)</h6>
+            <p class="small text-muted mb-2">Send a POST request to <code>/api/predict</code> with JSON body:</p>
+            <pre class="bg-dark text-light p-3 rounded mb-0" style="font-size: 0.85rem;"><code>curl -X POST http://127.0.0.1:5000/api/predict \
+     -H "Content-Type: application/json" \
+     -d '{"text": "The United States Senate passed the infrastructure modernization bill providing transportation grants to states across thirty regional jurisdictions today."}'</code></pre>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const sampleReal = "The United States Senate approved a sweeping infrastructure package following weeks of bipartisan negotiations. Lawmakers voted in favor of allocating federal funding for highway repairs, public transit upgrades, bridge restorations, and clean drinking water initiatives across several states. Committee leaders emphasized that the funding measures aim to support long-term economic development and create skilled labor employment opportunities nationwide.";
+    
+    const sampleFake = "SHOCKING BOMBSHELL: Secret whistleblowers have leaked classified proof exposing a hidden global cabal manipulating weather and seismic tremors. Mainstream media is totally silent and refusing to cover this explosive truth while patriots wake up! Share this breaking report before censorship shuts down our page completely!";
+
+    function updateWordCount() {
+        const text = document.getElementById("news_text").value.trim();
+        const words = text ? text.split(/\s+/).length : 0;
+        const badge = document.getElementById("wordCountBadge");
+        badge.innerText = `${words} words` + (words < 20 ? " (min 20 required)" : " (ready to check)");
+        if (words >= 20) {
+            badge.className = "badge bg-success";
+        } else {
+            badge.className = "badge bg-secondary";
+        }
+    }
+
+    function loadSample(type) {
+        const textarea = document.getElementById("news_text");
+        textarea.value = type === 'real' ? sampleReal : sampleFake;
+        updateWordCount();
+    }
+
+    function clearForm() {
+        document.getElementById("news_text").value = "";
+        updateWordCount();
+        const resultCard = document.querySelector(".result-card");
+        if (resultCard) {
+            resultCard.style.display = "none";
+        }
+    }
+
+    document.getElementById("news_text").addEventListener("input", updateWordCount);
+    // Initialize count on load
+    updateWordCount();
+</script>
+{% endblock %}
