@@ -30,3 +30,5 @@ Thumbs.db
 # Local NLTK corpora data (downloaded automatically at runtime)
 nltk_data/
 
+
+.vercel
