@@ -150,14 +150,19 @@
     const sampleFake = "SHOCKING BOMBSHELL: Secret whistleblowers have leaked classified proof exposing a hidden global cabal manipulating weather and seismic tremors. Mainstream media is totally silent and refusing to cover this explosive truth while patriots wake up! Share this breaking report before censorship shuts down our page completely!";
 
     function updateWordCount() {
-        const text = document.getElementById("news_text").value.trim();
-        const words = text ? text.split(/\s+/).length : 0;
+        const textarea = document.getElementById("news_text");
+        if (!textarea) return;
+        const text = textarea.value.trim();
+        const words = text ? text.split(/\s+/).filter(w => w.length > 0).length : 0;
         const badge = document.getElementById("wordCountBadge");
-        badge.innerText = `${words} words` + (words < 20 ? " (min 20 required)" : " (ready to check)");
-        if (words >= 20) {
-            badge.className = "badge bg-success";
-        } else {
-            badge.className = "badge bg-secondary";
+        
+        if (badge) {
+            badge.innerText = `${words} words` + (words < 20 ? " (min 20 required)" : " (ready to check)");
+            if (words >= 20) {
+                badge.className = "badge bg-success";
+            } else {
+                badge.className = "badge bg-secondary";
+            }
         }
     }
 
@@ -176,8 +181,30 @@
         }
     }
 
-    document.getElementById("news_text").addEventListener("input", updateWordCount);
-    // Initialize count on load
+    // Attach listeners to update word count on every action
+    const tx = document.getElementById("news_text");
+    if (tx) {
+        ['input', 'change', 'keyup', 'keydown', 'paste', 'blur', 'focus'].forEach(evt => {
+            tx.addEventListener(evt, () => setTimeout(updateWordCount, 20));
+        });
+        // Check periodically in case browser autofills or pastes silently
+        setInterval(updateWordCount, 400);
+    }
+
+    // Add loading feedback on form submit
+    const newsForm = document.getElementById("newsForm");
+    if (newsForm) {
+        newsForm.addEventListener("submit", function() {
+            const btn = document.getElementById("submitBtn");
+            if (btn) {
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Analyzing with NLP...';
+                btn.disabled = true;
+            }
+        });
+    }
+
+    // Run count on initial page render
+    document.addEventListener("DOMContentLoaded", updateWordCount);
     updateWordCount();
 </script>
 {% endblock %}

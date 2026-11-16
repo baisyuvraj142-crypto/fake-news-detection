@@ -18,14 +18,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download required NLTK resources
+# Download required NLTK resources into system cache
 RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet'); nltk.download('omw-1.4'); nltk.download('punkt'); nltk.download('punkt_tab')"
 
 # Copy application files
 COPY . .
 
+# Pre-warm model and NLTK cache during Docker build
+RUN python -c "from src.predict import predict_news; print('Pre-warm check:', predict_news('The United States Senate passed the infrastructure modernization bill providing transportation grants to states across thirty regional jurisdictions today.'))"
+
 # Expose port
 EXPOSE 5000
 
-# Run with gunicorn dynamic port binding
-CMD exec gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 2 app:app
+# Run with 1 worker, 2 threads, and a 120-second timeout to prevent 502s on Render Free Tier
+CMD exec gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 1 --threads 2 --timeout 120 app:app

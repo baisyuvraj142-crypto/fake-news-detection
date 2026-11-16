@@ -11,9 +11,16 @@ Routes:
 import os
 import json
 from flask import Flask, render_template, request, jsonify
-from src.predict import predict_news
+from src.predict import predict_news, load_artifacts
 
 app = Flask(__name__)
+
+# Preload model artifacts on boot for instant sub-second responses
+try:
+    load_artifacts()
+except Exception as e:
+    print(f"Warning: Preloading artifacts failed: {e}")
+
 
 # Base paths
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
